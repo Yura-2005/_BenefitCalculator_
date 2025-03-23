@@ -8,6 +8,7 @@ namespace BenefitCalculator
         public Form1()
         {
             InitializeComponent();
+            cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
         }
 
         private void btnCalculate_Click(object sender, EventArgs e)
@@ -15,10 +16,41 @@ namespace BenefitCalculator
             try
             {
                 string category = cmbCategory.SelectedItem.ToString();
-                int familyMembers = int.Parse(txtFamilyMembers.Text);
-                double electricity = double.Parse(txtElectricity.Text);
-                double gas = double.Parse(txtGas.Text);
-                double water = double.Parse(txtWater.Text);
+
+                // Перевірка на відсутність вибору категорії
+                if (string.IsNullOrEmpty(category))
+                {
+                    MessageBox.Show("Будь ласка, виберіть категорію пільговика.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Перевірка на правильність вводу кількості членів сім'ї
+                if (!int.TryParse(txtFamilyMembers.Text, out int familyMembers) || familyMembers < 0)
+                {
+                    MessageBox.Show("Кількість членів сім'ї повинна бути цілим числом та більше або рівне нулю.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Перевірка на правильність вводу витрат на електроенергію
+                if (!double.TryParse(txtElectricity.Text, out double electricity) || electricity < 0)
+                {
+                    MessageBox.Show("Витрати на електроенергію повинні бути числом більше або рівним нулю.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Перевірка на правильність вводу витрат на газ
+                if (!double.TryParse(txtGas.Text, out double gas) || gas < 0)
+                {
+                    MessageBox.Show("Витрати на газ повинні бути числом більше або рівним нулю.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Перевірка на правильність вводу витрат на воду
+                if (!double.TryParse(txtWater.Text, out double water) || water < 0)
+                {
+                    MessageBox.Show("Витрати на воду повинні бути числом більше або рівним нулю.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 double discount = 0;
                 if (category == "Одинокий інвалід")
@@ -28,26 +60,17 @@ namespace BenefitCalculator
                 else if (category == "Ветеран УПА (75%)")
                     discount = 0.25; // 75%
 
-                // double totalBeforeDiscount = (electricity * 1.44) + (gas * 7) + (water * 10) + (area * 20);
-                // double totalCost = totalBeforeDiscount * (1 - discount);
-
+                // Розрахунок загальної суми до знижки
                 double totalBeforeDiscount = (electricity * 4.32) + (gas * 8) + (water * 90);
 
-                double totalCost;
-                if (discount == 1.0)
-                {
-                    totalCost = totalBeforeDiscount; // Повне повернення коштів
-                }
-                else
-                {
-                    totalCost = totalBeforeDiscount * (1 - discount);
-                }
+                // Розрахунок вартості після застосування знижки
+                double totalCost = discount == 1.0 ? totalBeforeDiscount : totalBeforeDiscount * (1 - discount);
 
                 lblResult.Text = $"Сума до відшкодування: {totalCost:F2} грн";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Помилка! Переконайтесь, що введені дані правильні.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Сталася помилка! Перевірте введені дані.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
