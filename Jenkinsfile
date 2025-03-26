@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     tools {
-        dotnet 'dotnet'  // Використання .NET SDK
+        dotnet 'dotnet'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Yura-2005/_BenefitCalculator_.git'  // Вкажи свій репозиторій
+                git 'https://github.com/Yura-2005/_BenefitCalculator_.git' 
             }
         }
 
@@ -30,21 +30,6 @@ pipeline {
             }
         }
 
-        stage('Convert TRX to JUnit') {
-            steps {
-                bat 'dotnet tool install --global trx2junit || exit 0' // Встановлюємо trx2junit, якщо його немає
-                bat 'trx2junit TestResults/test-results.trx' // Конвертуємо у JUnit-формат
-            }
-        }
-
-        stage('Publish Test Results') {
-            steps {
-                publishXUnit(
-                    tools: [XUnitDotNetTestType(pattern: 'TestResults/test-results.junit.xml')]
-                )
-            }
-        }
-
         stage('Publish') {
             steps {
                 script {
@@ -56,8 +41,10 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'TestResults/*.trx', fingerprint: true
-            junit 'TestResults/test-results.junit.xml'
+            publishXUnit([
+                tools: [XUnitDotNetTestType(pattern: '**/TestResults/*.trx')]
+            ])
+            archiveArtifacts artifacts: '**/TestResults/*.trx', fingerprint: true
         }
     }
 }
