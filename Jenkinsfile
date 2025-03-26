@@ -30,6 +30,21 @@ pipeline {
             }
         }
 
+        stage('Convert TRX to JUnit') {
+            steps {
+                bat 'dotnet tool install --global trx2junit || exit 0' // Встановлюємо trx2junit, якщо його немає
+                bat 'trx2junit TestResults/test-results.trx' // Конвертуємо у JUnit-формат
+            }
+        }
+
+        stage('Publish Test Results') {
+            steps {
+                publishXUnit(
+                    tools: [XUnitDotNetTestType(pattern: 'TestResults/test-results.junit.xml')]
+                )
+            }
+        }
+
         stage('Publish') {
             steps {
                 script {
@@ -42,7 +57,7 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'TestResults/*.trx', fingerprint: true
-            junit 'TestResults/*.trx'
+            junit 'TestResults/test-results.junit.xml'
         }
     }
 }
