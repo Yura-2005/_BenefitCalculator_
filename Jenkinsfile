@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     tools {
-        dotnet 'dotnet'  // Вказує, що Jenkins використовує .NET SDK
+        dotnet 'dotnet'  // Використання .NET SDK
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Yura-2005/_BenefitCalculator_.git'  // Вказуй свій репозиторій
+                git 'https://github.com/Yura-2005/_BenefitCalculator_.git'  // Вкажи свій репозиторій
             }
         }
 
@@ -21,10 +21,11 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Tests') {  
             steps {
                 script {
-                    bat 'dotnet test BenefitCalculator.Tests\\BenefitCalculator.Tests.csproj --logger "trx;LogFileName=test-results.trx" --results-directory "TestResults"'
+                    bat 'if exist TestResults rd /s /q TestResults'  
+                    bat 'dotnet test BenefitCalculator.Tests\\BenefitCalculator.Tests.csproj --logger "trx;LogFileName=test-results.trx" --results-directory TestResults'
                 }
             }
         }
